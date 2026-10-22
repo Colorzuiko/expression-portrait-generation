@@ -1,0 +1,4 @@
+interface:
+  display_name: "Expression Portrait Generation"
+  short_description: "Create fixed-composition portrait expression patches"
+  default_prompt: "Use $expression-portrait-generation to create a 60-entry portrait set using fixed RGBA pose bases, local expression patches, and exact checks outside each edit mask."
