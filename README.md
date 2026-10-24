@@ -2,12 +2,14 @@
 
 把角色設定圖製作成兩階段對話立繪批次：**先完成固定預設姿勢的全部局部表情，再新增需要的肢體語言版本，最後輸出 HTML 報告。**
 
-A portable Codex skill for default-pose facial batches, optional body-language variants, transparent RGBA assets, and deduplicated HTML reports.
+A portable Codex skill for two-pass 2×2 portrait batches, native-size bottom-centered transparent padding, and deduplicated HTML reports.
 
 ## 一次批次包含什麼
 
 - A：全部表情沿用一張預設 RGBA 母圖，局部改眼眉嘴、臉頰與允許的符號。
 - B：A 全部通過後，只產生確實有額外手、手臂、肩或軀幹動作的項目。
+- A／B 先各自試作四格，逐張驗收後再以 2×2 擴批；失敗格單張補作，不重生已通過項目。
+- 完整人物裁切保持原生尺寸，水平置中、底部貼齊，補透明畫布至 720×720；不為填滿畫布放大人物。
 - 沒有額外動作時，manifest 記錄 reuse_default，直接參照 A，不生成或複製另一張同圖。
 - 肢體規格是獨立文字，不需要特定角色範例、既存圖包、圖格位置或備份目錄。
 - 頭頸角度預設固定；碰臉的手配合臉位。第 16 項採直立頭角的凝視近似表現。
@@ -64,7 +66,15 @@ alpha_changed_pixels == 0       # 一般臉部差分
 
 A 的整套表情使用同一母圖；B 的新姿勢各自接受並凍結。新 B 母圖不要求與 A 像素相同，跨姿勢的頭頸與外觀一致性需要目視驗收。相容 B 姿勢共用時，採該組自己的臉部遮罩。
 
-透明圖保留 alpha。需要綠幕去背時，先在原尺寸處理與檢查前景，再以預乘 alpha 縮放 RGBA 一次：
+完整人物裁切不超過 720×720 時，保留原生 RGBA 像素，僅在外圍補透明畫布。627×627 放在 720×720 的 (46,93)：左 46、右 47、上 93、下 0；不放大或縮成 690。
+
+~~~powershell
+node scripts/pad_portrait_canvas.cjs native-crop.png candidate-720.png
+~~~
+
+原始四格圖也可用 `--box left top right bottom` 指定既定格位裁切。QA 記錄原生尺寸、crop_box、offset、padding、scale=[1,1]、resampled=false；原生裁切大於 720 時拒絕自動縮放或截斷人物，需調整生成或完整裁切後重新驗收。此規則用於新母圖與 B 完整立繪；A 臉部局部仍依自己的 ROI 對齊，凍結母圖不重新定位。
+
+已取得透明圖時不再去背。需要綠幕去背時，先在原尺寸處理與檢查前景，再以相同方式底部置中補透明畫布：
 
 ~~~powershell
 node scripts/prepare_matted_pose.cjs raw_chroma/base_01.png candidates/base_01_rgba.png matting-temp/base_01
@@ -105,11 +115,12 @@ output/expression-portraits/<reference_stem>/<run>/
 
 ~~~powershell
 npm run test:matting
+# 只測補畫布時可執行 npm run test:canvas
 python -m unittest discover -s scripts -p "test_*.py" -v
 python scripts/make_release.py
 ~~~
 
-測試使用合成圖片，不呼叫生圖服務。報告測試檢查沿用不重複出圖、實際檔數、重複 B、缺項、QA、階段順序及檔案保護。打包依明確檔案清單輸出到 dist/，不包含角色圖片、測試產物或安裝依賴。
+測試使用合成圖片，不呼叫生圖服務。補畫布測試核對 627→720 不重採樣、RGBA 位元完整保留、奇數留白、矩形格、裁切框、超尺寸拒絕、來源保護及去背整合；CI 的 test:matting 一併執行。報告測試檢查沿用不重複出圖、實際檔數、重複 B、缺項、QA、階段順序及檔案保護。打包依明確檔案清單輸出到 dist/，不包含角色圖片、測試產物或安裝依賴。
 
 ## 限制與授權
 

@@ -8,8 +8,8 @@ FILES=[
  'README.md','LICENSE','THIRD_PARTY_NOTICES.md','CHANGELOG.md','RELEASE_NOTES.md',
  'SKILL.md','SKILL_New.md','SKILL_3RD.md','package.json','package-lock.json','requirements.txt','agents/openai.yaml',
  'references/body-language-catalog-60.md','references/dual-variant-workflow.md','references/expression-catalog-60.md','references/expression-prompts.md','references/image-matting.md','references/local-expression-diffs.md',
- 'scripts/compose_expression_patch.py','scripts/image-matting.cjs','scripts/prepare_matted_pose.cjs','scripts/remove_expression_backgrounds.cjs',
- 'scripts/render_batch_report.py','scripts/test_render_batch_report.py','scripts/test_compose_expression_patch.py','scripts/test_image_matting.cjs','scripts/make_release.py','scripts/licenses/commander-LICENSE'
+ 'scripts/compose_expression_patch.py','scripts/image-matting.cjs','scripts/prepare_matted_pose.cjs','scripts/pad_portrait_canvas.cjs','scripts/remove_expression_backgrounds.cjs',
+ 'scripts/render_batch_report.py','scripts/test_render_batch_report.py','scripts/test_compose_expression_patch.py','scripts/test_image_matting.cjs','scripts/test_portrait_canvas.cjs','scripts/make_release.py','scripts/licenses/commander-LICENSE'
 ]
 
 def build():

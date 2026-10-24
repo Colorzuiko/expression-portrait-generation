@@ -1,10 +1,11 @@
 {
   "name": "expression-portrait-generation",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
-  "description": "Two-pass facial and optional body-language portrait batches with deduplicated HTML reports",
+  "description": "Two-pass 2x2 portrait batches with native-size bottom-centered transparent padding and deduplicated HTML reports",
   "scripts": {
-    "test:matting": "node --test scripts/test_image_matting.cjs"
+    "test:matting": "node --test scripts/test_image_matting.cjs scripts/test_portrait_canvas.cjs",
+    "test:canvas": "node --test scripts/test_portrait_canvas.cjs"
   },
   "dependencies": {
     "sharp": "0.35.5"

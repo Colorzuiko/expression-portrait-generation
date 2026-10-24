@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-// Native-resolution matting -> foreground QA -> premultiplied-alpha resize.
+// Native-resolution matting -> foreground QA -> bottom-center transparent padding.
 // Output is a candidate; visually review it before freezing a pose contract.
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const {createHash}=require('node:crypto');
 const {spawnSync}=require('node:child_process');
-const sharp=require('sharp');
+const {prepareCanvas}=require('./pad_portrait_canvas.cjs');
 
 (async()=>{
   const args=process.argv.slice(2);
@@ -22,10 +23,8 @@ const sharp=require('sharp');
   if(result.status!==0)throw Error('Native matting did not pass foreground QA: '+result.stderr);
   const report=JSON.parse(await fs.readFile(native+'.qa.json','utf8'));
   if(report.status!=='passed')throw Error('Native foreground QA has not passed');
-  // Sharp premultiplies alpha around resampling; avoid resizing RGB-on-green.
-  const {data,info}=await sharp(native).resize({width:690,height:690,fit:'inside'}).png().toBuffer({resolveWithObject:true});
-  const left=Math.floor((720-info.width)/2),top=720-info.height;
-  await sharp({create:{width:720,height:720,channels:4,background:{r:0,g:0,b:0,alpha:0}}}).composite([{input:data,left,top}]).png().toFile(output);
-  const review={status:'needs-visual-review',workflow_version:'foreground-preserving-v2',input,native_rgba:native,output,native_qa:report,resize:[info.width,info.height],offset:[left,top],canvas:[720,720],alpha_resampling:'Sharp premultiplied alpha; matting performed before resize'};
+  const padded=await prepareCanvas(native,output,{force,writeReport:false});
+  const sourceHash=createHash('sha256').update(await fs.readFile(input)).digest('hex');
+  const review={...padded,workflow_version:'foreground-preserving-v3-bottom-center-padding',input,source_sha256:sourceHash,native_rgba:native,native_rgba_sha256:padded.source_sha256,native_qa:report,alpha_resampling:'none; native matte RGBA pixels copied unchanged'};
   await fs.writeFile(output+'.qa.json',JSON.stringify(review,null,2)+'\n');console.log(JSON.stringify(review));
 })().catch(e=>{console.error(e.message);process.exitCode=1;});

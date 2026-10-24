@@ -4,7 +4,7 @@
 
 ## 安裝與位置
 
-分享包須保留以下相對結構。Node.js 與 npm 需預先可用；在**技能資料夾**安裝本包鎖定的 `sharp 0.35.5`，原生套件由 npm 依系統取得。ZIP 不含 `node_modules/`。
+分享包須保留以下相對結構。Node.js 與 npm 需預先可用；在**技能資料夾**安裝 package-lock.json 鎖定的 Sharp，原生套件由 npm 依系統取得。ZIP 不含 `node_modules/`。
 
 ```text
 MyPortrait/
@@ -16,6 +16,7 @@ MyPortrait/
     image-matting.cjs
     remove_expression_backgrounds.cjs
     prepare_matted_pose.cjs
+    pad_portrait_canvas.cjs
     compose_expression_patch.py
     licenses/commander-LICENSE
   references/
@@ -31,13 +32,15 @@ node scripts/image-matting.cjs --help
 
 ## 只在新姿勢母圖階段執行
 
-先將已確認構圖、尚未縮小的原尺寸綠幕保存為 `raw_chroma/base_01.png`。不要先把近綠色邊緣填成純綠，也不要用已經去背再合成綠底的派生圖代替原始輸入。
+先將已確認構圖的原生單格綠幕保存為 `raw_chroma/base_01.png`，並保留四格原圖與裁切框；此候選流程要求原生格寬高不超過 720。不要先把近綠色邊緣填成純綠，也不要用已經去背再合成綠底的派生圖代替原始輸入。
 
 ```powershell
 node scripts/prepare_matted_pose.cjs raw_chroma/base_01.png candidates/base_01_rgba.png matting-temp/base_01
 ```
 
-此命令先在原尺寸去背並檢查前景保存，再以預乘 alpha 縮放成 720×720 RGBA 候選。輸出 QA 的 `needs-visual-review` 表示仍須目視，不能直接當成已凍結母圖。
+此命令先在原尺寸去背並檢查前景保存，再以透明像素補成 720×720：原生人物保持大小、水平置中、底部對齊，RGBA 不重採樣。627×627 的 offset 為 [46,93]；不再先縮成 690 或放大到 720。超過畫布的原生格會被拒絕，不能自動裁掉人物。輸出 QA 的 `needs-visual-review` 表示仍須目視，不能直接當成已凍結母圖。
+
+已取得合格原生透明裁切時，不再跑去背，直接使用 `node scripts/pad_portrait_canvas.cjs native-crop.png candidate-720.png`；完整紀錄與裁切命令見[兩階段流程](dual-variant-workflow.md#完整人物的裁切與補畫布)。
 
 一次處理多個新姿勢母圖，可使用附帶的包裝程式；預設從它自己所在的 `scripts/` 尋找去背 CLI，無論工作目錄在哪裡都不回退到作者電腦路徑。
 
@@ -68,7 +71,7 @@ node scripts/remove_expression_backgrounds.cjs raw_chroma candidates matting-tem
 
 ## 驗收後才凍結
 
-- 原尺寸去背 QA 通過後才縮放 RGBA，不先縮綠幕 RGB；縮放須使用預乘 alpha，避免背景色滲入邊緣。原尺寸中間圖與三張遮罩保留，最終候選為 720×720。
+- 原尺寸去背 QA 通過後才補透明畫布，不縮放綠幕 RGB 或已去背 RGBA；原生人物 RGBA 原樣保留，新增像素為全透明。原尺寸中間圖與三張遮罩保留，最終候選為 720×720。
 - 在白底與深色底檢查髮絲、半透明過渡、手指、衣物和配件，沒有誤刪、破洞或殘留綠邊。相近於背景的角色顏色要特別檢查。
 - 有破洞時對照原始綠幕及三張中間遮罩，修正母圖去背；不能把破洞當成表情差分的一部分。
 - 驗收後凍結母圖 RGBA／alpha／雜湊，再建立局部表情契約。後續 60 項只套用局部差分，不逐張重跑去背。

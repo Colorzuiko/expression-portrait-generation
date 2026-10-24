@@ -8,6 +8,28 @@ reuse_default 是語意參照，沒有 B PNG、沒有 B image 路徑，也不複
 
 phase_a_complete 須由 A 全部驗收後記錄。只有此後才開始 B 生圖。若 B 使用新姿勢母圖且已帶正確表情，可直接接受；共用 B 姿勢時，採該姿勢自己的臉部局部契約，不能未檢查座標與遮擋就貼上 A 的臉部圖。
 
+## 完整人物的裁切與補畫布
+
+此規則用於凍結前的新預設母圖與 B 完整立繪，不用於 A 的臉部局部。四格原圖依已記錄格位裁切，先保存每格原生 PNG；有綠幕時先在原尺寸去背。保持格內構圖，不因透明邊界重新緊裁切或自動移動人物。
+
+對已去背且寬高都不超過 720 的裁切，僅增加透明畫布，不縮放或重採樣原生人物。放置座標為 x=floor((720−w)/2)、y=720−h；左右差 1 像素時，額外像素留在右側。627×627 格放在 (46,93)：左 46、右 47、上 93、下 0；新增區域為 RGBA [0,0,0,0]，裁切內每個 RGBA 像素原樣保留。
+
+~~~powershell
+node scripts/pad_portrait_canvas.cjs patches/crops/B01_06.png body_language/06_envy.png
+~~~
+
+也可直接指定原始四格圖的既定裁切框；座標為 [left,top,right,bottom)：
+
+~~~powershell
+node scripts/pad_portrait_canvas.cjs raw_bases/B01.png body_language/06_envy.png --box 0 0 627 627
+~~~
+
+工具輸出 720×720 RGBA PNG 及同名 .qa.json。紀錄包含 source_size、crop_box、native_crop_size、canvas、offset、padding、scale=[1,1]、resampled=false、native_720 與檔案 SHA-256。native_720 只有裁切本身為 720×720 才為 true；外加透明畫布不會增加原生解析度。預設拒絕覆寫及來源／輸出相同路徑。
+
+原生裁切大於 720 時，工具拒絕自動縮放或裁掉人物，保留來源；應調整生成或已確認不截斷人物的完整裁切，取得可容納的原生圖後重試。不能為填滿畫布先放大、統一改成 690，再補邊，或對凍結母圖重做定位。
+
+補畫布後先核對頭頸、人物大小與 A 的對應位置，再驗收白／深底、手型和接觸；通過才凍結母圖。A 的局部按契約對齊到 ROI，其局部尺寸轉換單獨記錄，並繼續要求凍結母圖遮罩外 RGBA 與 alpha 不變。
+
 ## 輸出結構
 
 以角色名稱及新版本建立專案內絕對路徑，保留舊檔。
