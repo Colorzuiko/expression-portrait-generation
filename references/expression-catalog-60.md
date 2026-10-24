@@ -1,14 +1,8 @@
-# 60-Entry Expression Catalog
+# 臉部表情清單 01–60
 
-## Updated Expression Catalog (01–60)
+兩階段共用同一套表情編號與臉部語意。本表僅描述眼眉、嘴、臉頰、視線及局部符號；第一階段 A 不加入手、道具、頭頸旋轉或身體動作。第二階段 B 再搭配 [肢體語言文字規格](body-language-catalog-60.md)。
 
-更新日期：2026-10-22。本版完整收錄原 52 項與新增 8 項，可直接用下表建立 60 項批次計畫。英文提示保留原清單及補充清單的內容，不加入角色外觀。
-
-- 01–52 沿用既有編號，不重新合併原清單中的近義項目。53–60 為本次分析後的補充項目。
-- 清單混合情緒、眼型、嘴型及手勢，共 60 個生成項目，不代表 60 種互斥的基礎情緒。
-- 55、58、60 屬組合或視覺細分；57、59 著重眼型。53 是單眼眨眼，60 額外要求側嘴角吐舌，應保留兩者差異。
-- 普通開閉嘴、服裝、角度與紅暈強弱不另增編號；汗滴、紅暈斜線、圓形紅頰及怒氣筋可作修飾符號，不單獨計數。
-- 53–60 預設採 `face-patch`，沿用主 RGBA 基準的身體及手勢；若另做手部動作，先在批次計畫中改列 `pose-template`，接受並凍結該組 RGBA 基準。
+09、21、31 等名稱仍保留，A 先表現其臉部語意；手掌、牌子及撐臉手指在 B 加入。16 因固定頭頸，採直立頭角的凝視近似版。53 與 60 各閉合單眼，60 額外有舌尖；57 為黑色橫方塊眼、58 為 > < 眼與 O 嘴、59 為螺旋眼與方形張嘴。
 
 | No. | 中文表情 | Expression | Facial Expression Prompt |
 | --- | --- | --- | --- |
@@ -20,37 +14,37 @@
 | 06 | 嫉妒 | Envy | jealous resentful expression, narrowed glare, tight frown, tense lowered brows, bitter mood |
 | 07 | 興奮 | Excited | excited expression, sparkling wide eyes, open happy mouth, lifted brows, bright eager smile |
 | 08 | 面無表情 | Expressionless | blank expressionless face, wide unfocused eyes, relaxed brows, small straight mouth, emotionless stare |
-| 09 | 扶額 | Facepalm | facepalm expression, one hand covering the face, eyes closed behind the hand, embarrassed resigned mood |
+| 09 | 扶額 | Facepalm | embarrassed resigned facial expression, eyes closed, brows lightly raised inward, small tense closed mouth |
 | 10 | 慌亂害羞 | Flustered | flustered expression, intense blush, wide startled eyes, small worried open mouth, sweat drop |
 | 11 | 挫怒 | Frustrated | frustrated expression, furrowed brows, narrowed angry eyes, clenched uneven teeth, tense mouth |
 | 12 | 皺眉 | Furrowed Brow | furrowed-brow glare, eyebrows tightly drawn together, narrowed eyes, flat stern mouth |
 | 13 | 痛苦扭臉 | Grimace | grimacing expression, clenched teeth, wrinkled nose, tightly narrowed eyes, strained discomfort |
 | 14 | 內疚 | Guilt | guilty expression, downcast half-lidded eyes, raised inner brows, small sad mouth, faint blush |
 | 15 | 疲憊 | Exhausted | exhausted expression, heavy drooping eyelids, unfocused tired gaze, small parted mouth, drained mood |
-| 16 | 庫柏力克凝視 | Kubrick Stare | ominous upward glare from a lowered head angle, shadowed eyes, intense fixed stare, small unsettling smile |
+| 16 | 庫柏力克凝視 | Kubrick Stare | ominous upward eye gaze with the head upright, shadowed eyes, intense fixed stare, small unsettling smile |
 | 17 | 害怕 | Scared | scared expression, wide eyes, raised brows, trembling clenched mouth, sweat drops |
 | 18 | 恐慌 | Panicking | panicked expression, blue stress shading, wide circular eyes, open alarmed mouth, sweat drops |
 | 19 | 擔憂 | Worried | worried expression, raised inner brows, uneasy downturned mouth, slight sweat drop, anxious gaze |
 | 20 | 嚴肅 | Serious | serious expression, steady forward gaze, straight mouth, slightly lowered brows, calm focused mood |
-| 21 | 舉牌 | Sign | calm neutral smile while holding a simple rectangular sign in front, relaxed eyes, mild friendly expression |
-| 22 | 睏倦 | Sleepy | sleepy yawning expression, eyes closed, mouth open in a yawn, one hand near the mouth, relaxed tired mood |
-| 23 | 賭氣 | Sulking | sulking pout, face turned slightly aside, narrowed sideways eyes, puffed cheeks, small protruding pout |
+| 21 | 舉牌 | Sign | calm neutral smile, relaxed eyes, mild friendly expression |
+| 22 | 睏倦 | Sleepy | sleepy yawning expression, eyes closed, mouth open in a yawn, relaxed tired mood |
+| 23 | 賭氣 | Sulking | sulking pout, narrowed sideways eye gaze, puffed cheeks, small protruding pout, head orientation unchanged |
 | 24 | 驚訝 | Surprised | surprised expression, wide round eyes, raised brows, small open O-shaped mouth |
-| 25 | 思考 | Thinking | thinking expression, eyes looking upward to the side, one hand resting at the chin, slight frown, contemplative mood |
-| 26 | 沉思 | Pensive | pensive expression, lowered gaze, hand at the chin, faint frown, quiet reflective mood |
+| 25 | 思考 | Thinking | thinking expression, eyes looking upward to the side, slight frown, contemplative mood |
+| 26 | 沉思 | Pensive | pensive expression, lowered eye gaze, faint frown, quiet reflective mood |
 | 27 | V 形怒眉 | V-Shaped Eyebrows | angry determined expression with V-shaped eyebrows, intense narrowed eyes, firm flat mouth |
 | 28 | 畏縮皺臉 | Wince | wincing expression, eyes squeezed shut, clenched teeth, tense cheek, sweat drop |
 | 29 | 狂氣笑 | Crazy Smile | unhinged wide smile, eyes opened very wide, fixed intense stare, raised brows, eerie excitement |
 | 30 | 邪惡微笑 | Evil Smile | wicked sly smile, half-lidded eyes, shadowed upper face, thin smirk, confident scheming mood |
-| 31 | 手指撐笑 | Finger Smile | forced cheek-pulled smile, fingers pushing both cheeks upward, uneasy eyes, artificial happy expression |
+| 31 | 手指撐笑 | Finger Smile | artificially stretched broad smile, tense raised mouth corners, uneasy eyes, forced happy facial expression |
 | 32 | 強顏歡笑 | Forced Smile | forced smile, tense closed-mouth smile, worried eyes, raised inner brows, subtle discomfort |
 | 33 | 露齒大笑 | Grin | big cheerful grin, eyes closed in happy arcs, broad toothy smile, lifted cheeks |
 | 34 | 邪惡咧嘴笑 | Evil Grin | menacing grin, narrowed eyes, sharply raised brows, wide toothy smile, mischievous threatening mood |
 | 35 | 淡笑 | Light Smile | gentle light smile, relaxed eyes, soft brows, small closed-mouth smile, calm friendly mood |
 | 36 | 悲傷微笑 | Sad Smile | sad smile, raised inner brows, moist downturned eyes, tiny fragile smile, bittersweet mood |
 | 37 | 誘惑微笑 | Seductive Smile | alluring smile, half-lidded gaze, relaxed brows, subtle curved mouth, confident teasing mood |
-| 38 | 忍笑 | Stifled Laugh | stifled laugh, eyes closed with blush, one hand covering the mouth, suppressed giggle |
-| 39 | 得意臉 | Doyagao | proud self-satisfied look, slight smug smile, relaxed half-lidded eyes, confident chin-forward mood |
+| 38 | 忍笑 | Stifled Laugh | stifled laugh, eyes closed with blush, compressed smiling lips, suppressed giggle |
+| 39 | 得意臉 | Doyagao | proud self-satisfied look, slight smug smile, relaxed half-lidded eyes, confident facial expression |
 | 40 | 歪嘴笑 | Smirk | smirking expression, one-sided smile, narrowed sideways eyes, raised brow, teasing confidence |
 | 41 | 自滿 | Smug | smug expression, small satisfied smile, half-lidded eyes, relaxed confident brows |
 | 42 | 迷因咧嘴笑 | Meme Grin | exaggerated meme grin, squinted eyes, raised brows, wide toothy mischievous smile |
@@ -61,7 +55,7 @@
 | 47 | 啜泣 | Sobbing | sobbing expression, streaming tears, flushed cheeks, squeezed anxious brows, trembling downturned mouth |
 | 48 | 開懷大笑 | Happy | happy laughing expression, eyes closed in arcs, open joyful smile, lifted cheeks, bright mood |
 | 49 | 受創呆滯 | Traumatized | traumatized expression, blank wide eyes, grey-blue stress shading, many sweat drops, trembling clenched mouth |
-| 50 | 嚇得發白 | Turn Pale | turning pale in shock, wide vacant eyes, blue-grey face shading, sweat drops, one hand covering the mouth |
+| 50 | 嚇得發白 | Turn Pale | turning pale in shock, wide vacant eyes, blue-grey face shading, sweat drops, small tense mouth |
 | 51 | 波浪嘴 | Wavy Mouth | nervous wavy mouth, raised worried brows, wide uneasy eyes, small sweat drop, hesitant anxious mood |
 | 52 | 貓嘴 | Cat Mouth | playful w-shaped mouth, soft blush, relaxed half-lidded eyes, tiny cute smile |
 | 53 | 單眼眨眼 | Wink | playful wink, one eye closed and the other eye open, relaxed brows, small friendly smile, subtle blush |
@@ -73,14 +67,4 @@
 | 59 | 螺旋眼暈眩 | Spiral-Eye Dizziness | dizzy comic expression, both eyes drawn as clear spirals, tense uneven brows, open square-shaped mouth, faint cheek hatching, overwhelmed disoriented mood |
 | 60 | 吐舌眨眼 | Tongue-Out Wink | cheeky tongue-out wink, one eye closed and the other eye open, small tongue tip sticking out from one corner of a playful smile, lively brows, subtle blush |
 
-### Optional Facial Marks
-
-按需要附加修飾符號，避免每一張圖都自動添加：
-
-| 修飾符號 | Prompt Fragment |
-| --- | --- |
-| 汗滴 | one or two comic sweat drops beside the temples |
-| 斜線紅暈 | fine diagonal blush hatching across the cheeks |
-| 圓形紅頰 | round rosy cheek marks |
-| 怒氣筋 | a small red comic anger-vein symbol near one temple |
-
+局部符號可按需要加入汗滴、斜線紅暈、圓形紅頰或怒氣筋，不自動套用於全部表情。若符號延伸到透明區，另建明確的小範圍 blend 契約；一般臉部差分保留母圖 alpha。

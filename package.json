@@ -1,8 +1,8 @@
 {
   "name": "expression-portrait-generation",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Fixed portrait expression patches with bundled Deback soft-alpha matting",
+  "description": "Two-pass facial and optional body-language portrait batches with deduplicated HTML reports",
   "scripts": {
     "test:matting": "node --test scripts/test_image_matting.cjs"
   },

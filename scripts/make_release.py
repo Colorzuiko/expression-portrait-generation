@@ -6,17 +6,17 @@ import hashlib,json,re,zipfile
 ROOT=Path(__file__).resolve().parents[1]
 FILES=[
  'README.md','LICENSE','THIRD_PARTY_NOTICES.md','CHANGELOG.md','RELEASE_NOTES.md',
- 'SKILL.md','SKILL_New.md','package.json','package-lock.json','requirements.txt','agents/openai.yaml',
- 'references/expression-catalog-60.md','references/expression-prompts.md','references/image-matting.md','references/local-expression-diffs.md',
+ 'SKILL.md','SKILL_New.md','SKILL_3RD.md','package.json','package-lock.json','requirements.txt','agents/openai.yaml',
+ 'references/body-language-catalog-60.md','references/dual-variant-workflow.md','references/expression-catalog-60.md','references/expression-prompts.md','references/image-matting.md','references/local-expression-diffs.md',
  'scripts/compose_expression_patch.py','scripts/image-matting.cjs','scripts/prepare_matted_pose.cjs','scripts/remove_expression_backgrounds.cjs',
- 'scripts/test_compose_expression_patch.py','scripts/test_image_matting.cjs','scripts/make_release.py','scripts/licenses/commander-LICENSE'
+ 'scripts/render_batch_report.py','scripts/test_render_batch_report.py','scripts/test_compose_expression_patch.py','scripts/test_image_matting.cjs','scripts/make_release.py','scripts/licenses/commander-LICENSE'
 ]
 
 def build():
     package=json.loads((ROOT/'package.json').read_text(encoding='utf-8'))
     version=package['version']
     if not re.fullmatch(r'\d+\.\d+\.\d+',version):raise ValueError('Expected a semantic release version')
-    assert (ROOT/'SKILL.md').read_bytes()==(ROOT/'SKILL_New.md').read_bytes(),'Skill aliases differ'
+    assert (ROOT/'SKILL.md').read_bytes()==(ROOT/'SKILL_New.md').read_bytes()==(ROOT/'SKILL_3RD.md').read_bytes(),'Skill aliases differ'
     names=set(FILES)
     for name in FILES:
         p=ROOT/name

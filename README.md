@@ -1,137 +1,118 @@
 # Expression Portrait Generation
 
-把人物設定圖製作成可切換的遊戲對話立繪：**固定姿勢母圖、局部表情生成、半透明去背、遮罩合成與像素驗證**。
+把角色設定圖製作成兩階段對話立繪批次：**先完成固定預設姿勢的全部局部表情，再新增需要的肢體語言版本，最後輸出 HTML 報告。**
 
-A Codex skill for fixed-composition dialogue portraits, with local expression patches and foreground-preserving chroma matting.
+A portable Codex skill for default-pose facial batches, optional body-language variants, transparent RGBA assets, and deduplicated HTML reports.
 
-## 能做什麼
+## 一次批次包含什麼
 
-- 提供完整 01–60 表情清單，包含情緒、眼型、嘴型及必要手勢，也可只製作指定子集。
-- 一般表情共用同一張 RGBA 母圖；扶額、舉牌、托腮等手勢建立獨立姿勢組。
-- 每張差分從所屬母圖直接合成，檢查遮罩外全部 RGBA 通道完全相同。
-- 一般臉部差分沿用母圖 alpha，交付 720×720 透明 PNG 與可選綠幕版本。
-- 附帶修正版 Deback 去背 CLI、固定遮罩合成工具與不呼叫生圖服務的測試。
+- A：全部表情沿用一張預設 RGBA 母圖，局部改眼眉嘴、臉頰與允許的符號。
+- B：A 全部通過後，只產生確實有額外手、手臂、肩或軀幹動作的項目。
+- 沒有額外動作時，manifest 記錄 reuse_default，直接參照 A，不生成或複製另一張同圖。
+- 肢體規格是獨立文字，不需要特定角色範例、既存圖包、圖格位置或備份目錄。
+- 頭頸角度預設固定；碰臉的手配合臉位。第 16 項採直立頭角的凝視近似表現。
+- HTML 顯示 A／B、沿用原因、QA、未完成項目與實際圖片數；沿用列只顯示一張 A。
+
+預設 60 個 A、44 個新增 B、16 個沿用，共 **104 張 PNG**。實際成品數依計畫為 N + 額外肢體版數，不固定要求 120 張。人物原始生圖、遮罩、報告與總覽不計入立繪成品數。
 
 ## 快速開始
 
-需要可使用圖片生成／編輯工具的 Codex 環境、Node.js 20.9 以上（建議 24），以及 Python 3.10 以上。
+使用可用圖片生成／編輯工具的環境、Node.js 20.9 以上，以及 Python 3.10 以上。取得目前分支的程式碼 ZIP（Code → Download ZIP）或對應版本的技能套件，保留資料夾結構。
 
-1. 從本專案的 **Releases** 下載技能 ZIP 並解壓，保留資料夾結構。
-2. 在含 `package.json` 的資料夾安裝依賴：
-
-```powershell
+~~~powershell
 npm ci
 python -m pip install -r requirements.txt
-```
+~~~
 
-3. 放入自己有權使用的人物設定圖，例如 `character.png`，在 Codex 開啟該資料夾並輸入：
+放入自己有權使用的 character.png，再請 Codex 執行：
 
-```text
-請讀取 SKILL_New.md 與 character.png，製作完整 01–60 表情立繪。
-先保留生圖原尺寸，完成姿勢母圖去背與前景保存 QA，再縮放 RGBA；
-檢查白底／深色底後才凍結母圖。
-依固定母圖＋臉部局部差分流程，先試作 24 驚訝並驗收，再擴充全套。
-相同姿勢組的遮罩外 RGBA 像素必須完全不變，普通臉部差分保留母圖 alpha。
-交付 720×720 透明 PNG、綠幕版、總覽、實際提示與 QA 紀錄。
-```
+~~~text
+請讀取 SKILL_3RD.md 與 character.png。
+先用固定預設姿勢完成全部 01–60 的局部表情差分並驗收；
+第二批只製作有額外肢體語言的版本，固定頭頸角度。
+沒有額外動作的項目直接參照 A，不再輸出相同 PNG。
+最後交付透明圖、QA、實際檔案數與批次 HTML 報告。
+~~~
 
-`SKILL.md` 與 `SKILL_New.md` 內容相同；前者是標準技能入口，後者保留既有使用方式。這個壓縮包提供技能與處理工具；圖片由目前環境可用的生圖工具生成。
+SKILL.md、SKILL_New.md、SKILL_3RD.md 內容相同，任一入口都使用相同兩階段規則。圖片由當前可用的生成工具製作；本套件本身不附角色素材。
 
-若要安裝為可發現的 Codex 技能，可把本資料夾放入專案的 `.agents/skills/expression-portrait-generation/`，保留內部相對路徑，再依環境顯示的技能入口使用。也可繼續採用上面的明確讀取方式。[官方技能文件](https://learn.chatgpt.com/docs/build-skills)
+## 工作順序
 
-## 工作流程
-
-```mermaid
+~~~mermaid
 flowchart LR
-  A[人物設定圖] --> B[姿勢母圖原圖]
-  B --> C[原尺寸去背與前景 QA]
-  C --> D[預乘 alpha 縮放 RGBA]
-  D --> E[白底與深色底目視驗收]
-  E --> F[凍結母圖、座標與遮罩]
-  F --> G[生成臉部局部]
-  G --> H[遮罩合成]
-  H --> I[像素驗證與總覽]
-```
+  A[角色設定與文字清單] --> B[接受預設姿勢母圖]
+  B --> C[局部差分完成全部 A]
+  C --> D[A 全部驗收通過]
+  D --> E{是否需要額外動作}
+  E -->|需要| F[生成並驗收 B 姿勢]
+  E -->|沒有| G[參照 A 不另存]
+  F --> H[配對 HTML 與實際統計]
+  G --> H
+~~~
 
-同姿勢組需要符合：
+[臉部清單](references/expression-catalog-60.md) 只含臉部語意。扶額、舉牌與手指撐笑的手勢在第二批加入，不帶進 A。第二批使用 [肢體文字清單](references/body-language-catalog-60.md)，依角色服裝及活動範圍調整。詳細階段門檻與 manifest 格式見 [兩階段流程](references/dual-variant-workflow.md)。
 
-```text
+## 固定差分與去背
+
+同一 pose_id 的局部差分須符合：
+
+~~~text
 final[mask == 0] == base[mask == 0]
 outside_mask_changed_pixels == 0
-alpha_changed_pixels == 0       # 普通臉部差分
-```
+alpha_changed_pixels == 0       # 一般臉部差分
+~~~
 
-去背 alpha 決定人物輪廓；表情編輯遮罩決定哪些臉部像素可改。兩者用途不同。母圖去背驗收後只處理一次，後續表情共用它的 alpha。
+A 的整套表情使用同一母圖；B 的新姿勢各自接受並凍結。新 B 母圖不要求與 A 像素相同，跨姿勢的頭頸與外觀一致性需要目視驗收。相容 B 姿勢共用時，採該組自己的臉部遮罩。
 
-## 去背工具
+透明圖保留 alpha。需要綠幕去背時，先在原尺寸處理與檢查前景，再以預乘 alpha 縮放 RGBA 一次：
 
-對新姿勢的原始綠幕圖執行：
-
-```powershell
+~~~powershell
 node scripts/prepare_matted_pose.cjs raw_chroma/base_01.png candidates/base_01_rgba.png matting-temp/base_01
-```
+~~~
 
-此命令在原尺寸去背，前景保存檢查通過後，使用預乘 alpha 縮放 RGBA，產生 720×720 候選。`needs-visual-review` 表示仍須檢查白底、深色底、髮絲、下顎、衣物與手指，通過後才接受。
+候選經白／深底驗收後才凍結；母圖只去背一次。局部合成工具見 [局部差分流程](references/local-expression-diffs.md)，去背參數與限制見 [去背說明](references/image-matting.md)。
 
-多個姿勢可執行：
+## HTML 報告
 
-```powershell
-node scripts/remove_expression_backgrounds.cjs raw_chroma candidates matting-temp --prepare-poses
-```
+依實際產物寫 manifest.json 後執行：
 
-工具預設使用 `#00ff00` 綠幕、不侵蝕 alpha，並保護可信前景原色。偵測到明顯誤刪、核心透明度損失、可信前景改色或強溢色時，去背 CLI 以非零退出碼阻擋；候選仍會保留以供診斷。其他色鍵、三張中間遮罩與詳細選項見 [去背說明](references/image-matting.md)。
+~~~powershell
+python scripts/render_batch_report.py output/expression-portraits/MyCharacter/run_v1/manifest.json --output report/index.html
+~~~
 
-## 局部合成
+報告使用相對連結，支援搜尋、只看未完成、A／B／並排檢視、背景及放大切換，另存 report-summary.json。reuse_default 沒有 B PNG，也不插入第二張相同圖片。accepted 的 B 若與 A 內容相同會被標記未通過。
 
-`scripts/compose_expression_patch.py` 提供三個子命令：
+缺少必要圖、QA 未通過或 A 未完整驗收，報告明示未完成並回傳非零；進度輸出可加 --allow-incomplete，已知衍生報告需覆寫時加 --force。工具不改動圖片或 QA。完整格式見 [manifest 範例](references/dual-variant-workflow.md)。
 
-| 命令 | 用途 |
-|---|---|
-| `prepare` | 凍結母圖、局部座標、灰階遮罩與檔案雜湊。 |
-| `compose` | 把局部圖合成回母圖，輸出透明 PNG、可選綠幕及驗證 JSON。 |
-| `verify` | 獨立檢查候選圖是否符合固定遮罩契約。 |
-
-局部圖定位、遮罩格式、完整命令及手指遮擋處理見 [局部差分流程](references/local-expression-diffs.md)。表情編號見 [01–60 清單](references/expression-catalog-60.md)。
+~~~text
+output/expression-portraits/<reference_stem>/<run>/
+  default/               所有 A 表情
+  body_language/         僅實際新增的 B
+  pose_templates/        各姿勢凍結母圖
+  regions/               ROI、遮罩與契約
+  raw_bases/             原始姿勢生成圖
+  patches/raw/           原始局部生成圖
+  patches/aligned/       對齊後局部
+  qa/                    固定像素與目視驗收紀錄
+  manifest.json
+  manifest.md
+  batch_plan.md
+  report/index.html
+  report/report-summary.json
+~~~
 
 ## 驗證與打包
 
-```powershell
+~~~powershell
 npm run test:matting
-python -m unittest discover -s scripts -p "test_compose_expression_patch.py" -v
+python -m unittest discover -s scripts -p "test_*.py" -v
 python scripts/make_release.py
-```
+~~~
 
-測試使用合成色塊、細線與局部圖片，不呼叫任何生圖 API。打包命令在 `dist/` 產生技能 ZIP 與 SHA-256 檢查碼；以明確檔案清單打包，不包含安裝依賴或生成產物。
+測試使用合成圖片，不呼叫生圖服務。報告測試檢查沿用不重複出圖、實際檔數、重複 B、缺項、QA、階段順序及檔案保護。打包依明確檔案清單輸出到 dist/，不包含角色圖片、測試產物或安裝依賴。
 
-## 輸出結構
+## 限制與授權
 
-```text
-output/expression-portraits/<reference_stem>/
-  pose_templates/        已驗收並凍結的姿勢母圖
-  regions/              固定裁切座標、遮罩與契約
-  patches/raw/          原始局部生成回應
-  patches/aligned/      對齊後局部
-  transparent/          透明 PNG 成品
-  expressions/          綠幕派生圖
-  qa/                   檢查與目視驗收紀錄
-  batch_plan.md
-  manifest.md
-  contact_sheet.png
-```
+像素檢查證明修改範圍；表情、接縫、手指、頭頸及透明效果仍需目視驗收。報告檢查 PNG 標頭與 QA 狀態，不能代替完整圖片解碼或美術品質檢查。無法完成的項目保持待補，不以沿用掩蓋缺圖。
 
-## 實際限制
-
-- 像素驗證能證明修改範圍，表情、接縫、手指與去背仍需要目視檢查。
-- 去背 QA 是啟發式檢查；與背景接近的角色顏色、細髮絲與半透明配件要對照原圖。
-- 工具沒有原生遮罩參數時，實際方法記為 `prompt-guided-patch`，最終固定構圖由確定性的遮罩合成保證。
-- 2×2 批次用於局部臉部。各自重畫完整人物的四格圖不能直接通過固定差分驗收。
-- 重用母圖與去背能減少重複工作；實際生成成本取決於所用工具，不承諾算力或費用節省比例。
-- 圖片仍是完整 PNG；「局部差分」描述產製方式，並非遊戲引擎原生分層格式。遊戲內切換同姿勢時應保持相同原點、位置與縮放。
-
-## 授權
-
-技能文件與專案程式採 [MIT](LICENSE) 授權。內附第三方程式保留原授權聲明，詳見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
-
-此專案不附人物設定圖或生成圖包，MIT 授權不授予這些素材的權利。使用自己有權使用的角色素材，並依來源授權處理生成結果。
-
-版本變更見 [CHANGELOG.md](CHANGELOG.md)。
+程式及技能文件採 [MIT](LICENSE)，第三方聲明見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。角色與生成素材的權利不由此授權授予。版本變更見 [CHANGELOG.md](CHANGELOG.md)。
